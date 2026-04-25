@@ -40,6 +40,15 @@ def get_default_api_base() -> str:
     return secrets_base or env_base or "http://127.0.0.1:8000"
 
 
+def has_configured_api_base() -> bool:
+    try:
+        secrets_base = str(st.secrets.get("FASTAPI_BASE_URL", "")).strip()
+    except Exception:
+        secrets_base = ""
+    env_base = (os.getenv("FASTAPI_BASE_URL") or "").strip()
+    return bool(secrets_base or env_base)
+
+
 DEFAULT_API_BASE = get_default_api_base()
 ROLE_LABEL_TO_KEY = {
     "ITI Trainee": "iti_trainee",
@@ -3430,11 +3439,14 @@ if auth_user:
 
 st.sidebar.markdown('<div class="sidebar-section"><div class="sidebar-title">Feedback Intelligence</div><div class="sidebar-copy">Production-style control surface for live ITI feedback, category, and technical analytics.</div></div>', unsafe_allow_html=True)
 
-api_base = st.sidebar.text_input(
-    "FastAPI Base URL",
-    value=DEFAULT_API_BASE,
-    help="Example: http://127.0.0.1:8000",
-)
+if has_configured_api_base():
+    api_base = DEFAULT_API_BASE
+else:
+    api_base = st.sidebar.text_input(
+        "FastAPI Base URL",
+        value=DEFAULT_API_BASE,
+        help="Example: http://127.0.0.1:8000",
+    )
 
 connected, status_msg = check_api(api_base)
 if connected:
