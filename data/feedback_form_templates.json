@@ -1,0 +1,295 @@
+[
+  {
+    "source": "iti_form",
+    "form_id": "iti_trainee_feedback_form",
+    "form_title": "ITI TRAINEE FEEDBACK FORM",
+    "rating_scale": [
+      "Excellent",
+      "Good",
+      "Average",
+      "Poor"
+    ],
+    "basic_fields": [
+      "Trainee Name",
+      "Trade",
+      "Batch / Session",
+      "Roll Number",
+      "Institute Name",
+      "Date"
+    ],
+    "parameters": [
+      {
+        "s_no": 1,
+        "parameter": "Theory Explanation"
+      },
+      {
+        "s_no": 2,
+        "parameter": "Practical Demonstration"
+      },
+      {
+        "s_no": 3,
+        "parameter": "Ability to clear doubts"
+      },
+      {
+        "s_no": 4,
+        "parameter": "Industry and real world Examples"
+      },
+      {
+        "s_no": 5,
+        "parameter": "Usage of Digital Teaching aids"
+      },
+      {
+        "s_no": 6,
+        "parameter": "Usage of Tools and Equipment"
+      },
+      {
+        "s_no": 7,
+        "parameter": "Instructor Support"
+      }
+    ]
+  },
+  {
+    "source": "iti_form",
+    "form_id": "iti_training_officer_feedback_form",
+    "form_title": "ITI TRAINING OFFICER FEEDBACK FORM",
+    "rating_scale": [
+      "Excellent",
+      "Good",
+      "Average",
+      "Poor"
+    ],
+    "basic_fields": [
+      "Instructor Name",
+      "Trade",
+      "Batch / Session",
+      "Institute Name",
+      "Date"
+    ],
+    "parameters": [
+      {
+        "s_no": 1,
+        "parameter": "Subject Knowledge"
+      },
+      {
+        "s_no": 2,
+        "parameter": "Teaching Methodology"
+      },
+      {
+        "s_no": 3,
+        "parameter": "Practical Demonstration Skills"
+      },
+      {
+        "s_no": 4,
+        "parameter": "Communication Skills"
+      },
+      {
+        "s_no": 5,
+        "parameter": "Use of Teaching Aids (PPT, Models, etc.)"
+      },
+      {
+        "s_no": 6,
+        "parameter": "Ability to Clear Doubts"
+      },
+      {
+        "s_no": 7,
+        "parameter": "Class Control & Discipline"
+      },
+      {
+        "s_no": 8,
+        "parameter": "Time Management"
+      },
+      {
+        "s_no": 9,
+        "parameter": "Record Maintenance"
+      }
+    ]
+  },
+  {
+    "source": "iti_form",
+    "form_id": "principal_feedback_form",
+    "form_title": "PRINCIPAL FEEDBACK FORM",
+    "rating_scale": [
+      "Excellent",
+      "Good",
+      "Average",
+      "Poor"
+    ],
+    "basic_fields": [
+      "Name of Training Officer",
+      "Institute Name",
+      "Trade(s) Supervised",
+      "Session / Batch",
+      "Date"
+    ],
+    "parameters": [
+      {
+        "s_no": 1,
+        "parameter": "Training Planning & Scheduling"
+      },
+      {
+        "s_no": 2,
+        "parameter": "Implementation of Training Programs"
+      },
+      {
+        "s_no": 3,
+        "parameter": "Monitoring of Classes & Practical Work"
+      },
+      {
+        "s_no": 4,
+        "parameter": "Record Maintenance (Attendance, Progress, etc.)"
+      },
+      {
+        "s_no": 5,
+        "parameter": "Coordination with Instructors"
+      }
+    ]
+  },
+  {
+    "source": "ojt_form",
+    "form_id": "student_feedback_form_in_plant_training",
+    "form_title": "STUDENT FEEDBACK FORM – IN-PLANT TRAINING",
+    "rating_scale": [
+      "Excellent",
+      "Good",
+      "Average",
+      "Poor"
+    ],
+    "basic_fields": [
+      "Student Name",
+      "Trade / Course",
+      "Institute Name",
+      "Industry / Company Name",
+      "Training Duration",
+      "Supervisor Name (Industry)",
+      "Date"
+    ],
+    "parameters": [
+      {
+        "s_no": 1,
+        "parameter": "Learning Opportunities Provided"
+      },
+      {
+        "s_no": 2,
+        "parameter": "Practical Exposure"
+      },
+      {
+        "s_no": 3,
+        "parameter": "Guidance by Industry Supervisor"
+      },
+      {
+        "s_no": 4,
+        "parameter": "Work Environment"
+      },
+      {
+        "s_no": 5,
+        "parameter": "Safety Measures at Workplace"
+      },
+      {
+        "s_no": 6,
+        "parameter": "Skill Improvement"
+      }
+    ]
+  },
+  {
+    "source": "ojt_form",
+    "form_id": "institute_feedback_form_in_plant_training_ato_dto_to",
+    "form_title": "INSTITUTE FEEDBACK FORM – IN-PLANT TRAINING (ATO / DTO / TO)",
+    "rating_scale": [
+      "Excellent",
+      "Good",
+      "Average",
+      "Poor"
+    ],
+    "basic_fields": [
+      "Name of Officer (ATO/DTO/TO)",
+      "Designation",
+      "Institute Name",
+      "Student Name",
+      "Trade",
+      "Industry / Company Name",
+      "Training Duration",
+      "Date of Visit / Evaluation"
+    ],
+    "parameters": [
+      {
+        "s_no": 1,
+        "parameter": "Relevance of Industry to Trade"
+      },
+      {
+        "s_no": 2,
+        "parameter": "Training Plan Availability"
+      },
+      {
+        "s_no": 3,
+        "parameter": "Facilities Provided by Industry"
+      },
+      {
+        "s_no": 4,
+        "parameter": "Availability of Tools & Equipment"
+      },
+      {
+        "s_no": 5,
+        "parameter": "Safety Measures & PPE"
+      },
+      {
+        "s_no": 6,
+        "parameter": "Stipend provided by Industry"
+      }
+    ]
+  },
+  {
+    "source": "ojt_form",
+    "form_id": "supervisor_feedback_form_iti_in_plant_training_evaluation",
+    "form_title": "SUPERVISOR FEEDBACK FORM-ITI In-Plant Training Evaluation",
+    "rating_scale": [
+      "Excellent",
+      "Good",
+      "Average",
+      "Poor"
+    ],
+    "basic_fields": [
+      "Name of Trainee",
+      "ITI Trade",
+      "Institute Name",
+      "Training Period",
+      "Company Name",
+      "Department",
+      "Supervisor Name",
+      "Designation"
+    ],
+    "parameters": [
+      {
+        "s_no": 1,
+        "parameter": "Attendance & Punctuality"
+      },
+      {
+        "s_no": 2,
+        "parameter": "Discipline & Behavior"
+      },
+      {
+        "s_no": 3,
+        "parameter": "Technical Skills"
+      },
+      {
+        "s_no": 4,
+        "parameter": "Learning Ability"
+      },
+      {
+        "s_no": 5,
+        "parameter": "Safety Awareness"
+      },
+      {
+        "s_no": 6,
+        "parameter": "Teamwork"
+      },
+      {
+        "s_no": 7,
+        "parameter": "Communication Skills"
+      },
+      {
+        "s_no": 8,
+        "parameter": "Initiative & Interest"
+      }
+    ]
+  }
+]
