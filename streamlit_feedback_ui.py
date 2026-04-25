@@ -4,6 +4,7 @@ import base64
 import io
 import json
 import hashlib
+import os
 import random
 import re
 import secrets
@@ -30,7 +31,16 @@ st.set_page_config(
 )
 
 
-DEFAULT_API_BASE = "http://127.0.0.1:8000"
+def get_default_api_base() -> str:
+    try:
+        secrets_base = str(st.secrets.get("FASTAPI_BASE_URL", "")).strip()
+    except Exception:
+        secrets_base = ""
+    env_base = (os.getenv("FASTAPI_BASE_URL") or "").strip()
+    return secrets_base or env_base or "http://127.0.0.1:8000"
+
+
+DEFAULT_API_BASE = get_default_api_base()
 ROLE_LABEL_TO_KEY = {
     "ITI Trainee": "iti_trainee",
     "Student": "student",
