@@ -1,0 +1,14 @@
+altair
+fastapi
+openpyxl
+pandas
+Pillow
+plotly
+psycopg2-binary
+pydantic
+python-dotenv
+requests
+streamlit
+torch
+transformers
+uvicorn
