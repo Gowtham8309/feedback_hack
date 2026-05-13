@@ -6,6 +6,7 @@ import random
 import hashlib
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
+from urllib.parse import urlparse
 
 try:
     import psycopg2
@@ -17,16 +18,28 @@ except Exception:  # pragma: no cover
     PsycopgIntegrityError = Exception
 
 
-DB_URL = (os.getenv("SUPABASE_DB_URL") or os.getenv("DATABASE_URL") or "").strip()
 LEGACY_PASSWORD_SENTINEL = "SUPABASE_AUTH_ONLY"
 
 
+def _get_db_url() -> str:
+    return (os.getenv("SUPABASE_DB_URL") or os.getenv("DATABASE_URL") or "").strip()
+
+
 def _require_db_url() -> str:
-    if not DB_URL:
+    db_url = _get_db_url()
+    if not db_url:
         raise RuntimeError(
             "SUPABASE_DB_URL is not configured. Set it in .env to use Supabase Postgres."
         )
-    return DB_URL
+    return db_url
+
+
+def _validate_supabase_db_url(db_url: str) -> None:
+    parsed = urlparse(db_url)
+    if not parsed.scheme or not parsed.hostname:
+        raise RuntimeError(
+            "SUPABASE_DB_URL is not a valid Postgres connection string."
+        )
 
 
 def _connect():
@@ -35,7 +48,26 @@ def _connect():
             "psycopg2 is not installed. Run: pip install psycopg2-binary"
         )
     db_url = _require_db_url()
-    return psycopg2.connect(db_url, cursor_factory=RealDictCursor)
+    _validate_supabase_db_url(db_url)
+    try:
+        return psycopg2.connect(db_url, cursor_factory=RealDictCursor)
+    except psycopg2.OperationalError as exc:
+        parsed = urlparse(db_url)
+        host = parsed.hostname or ""
+        username = parsed.username or ""
+        hint = ""
+        if "pooler.supabase.com" in host:
+            hint = (
+                " Supabase pooler rejected the tenant/user. Re-copy the Postgres "
+                "connection string from the Supabase dashboard instead of hand-editing it. "
+                "If you use the direct connection host, the username is usually just "
+                "'postgres'; if you use the pooler host, use the exact username and port "
+                "Supabase shows for that pooler mode."
+            )
+        raise RuntimeError(
+            "Failed to connect to Postgres using SUPABASE_DB_URL "
+            f"(host='{host}', user='{username}').{hint}"
+        ) from exc
 
 
 def init_db() -> None:

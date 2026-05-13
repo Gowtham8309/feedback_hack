@@ -5,6 +5,7 @@ import json
 import os
 import sqlite3
 from pathlib import Path
+from urllib.parse import urlparse
 
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -21,7 +22,18 @@ def connect_pg():
     db_url = (os.getenv("SUPABASE_DB_URL") or os.getenv("DATABASE_URL") or "").strip()
     if not db_url:
         raise RuntimeError("Set SUPABASE_DB_URL in environment before running migration.")
-    return psycopg2.connect(db_url, cursor_factory=RealDictCursor)
+    parsed = urlparse(db_url)
+    if not parsed.scheme or not parsed.hostname:
+        raise RuntimeError("SUPABASE_DB_URL is not a valid Postgres connection string.")
+    try:
+        return psycopg2.connect(db_url, cursor_factory=RealDictCursor)
+    except psycopg2.OperationalError as exc:
+        host = parsed.hostname or ""
+        username = parsed.username or ""
+        raise RuntimeError(
+            "Failed to connect to Postgres using SUPABASE_DB_URL "
+            f"(host='{host}', user='{username}')."
+        ) from exc
 
 
 def migrate_sqlite_technical_to_pg(cur, sqlite_conn) -> None:

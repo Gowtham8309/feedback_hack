@@ -1,23 +1,57 @@
 from __future__ import annotations
 
 import re
-from functools import lru_cache
 from typing import Dict, List
 
-from transformers import pipeline
 
-
-MODEL_NAME = "distilbert/distilbert-base-uncased-finetuned-sst-2-english"
-NEUTRAL_THRESHOLD = 0.60
 NEUTRAL_SCORE_BAND = 0.15
-
-
-@lru_cache(maxsize=1)
-def get_sentiment_pipeline():
-    return pipeline(
-        "sentiment-analysis",
-        model=MODEL_NAME,
-    )
+CLAUSE_SPLIT_PATTERN = r"\bbut\b|\bhowever\b|\bthough\b|\balthough\b|\byet\b"
+POSITIVE_TERMS = {
+    "amazing",
+    "clear",
+    "effective",
+    "engaging",
+    "excellent",
+    "good",
+    "great",
+    "helpful",
+    "improved",
+    "informative",
+    "interactive",
+    "nice",
+    "positive",
+    "practical",
+    "satisfied",
+    "strong",
+    "supportive",
+    "understandable",
+    "useful",
+    "well",
+}
+NEGATIVE_TERMS = {
+    "bad",
+    "boring",
+    "confusing",
+    "difficult",
+    "disappointing",
+    "hard",
+    "issue",
+    "lack",
+    "missing",
+    "negative",
+    "not",
+    "poor",
+    "problem",
+    "slow",
+    "unclear",
+    "unhelpful",
+    "unsafe",
+    "weak",
+    "worse",
+    "worst",
+}
+INTENSIFIERS = {"very", "extremely", "highly", "really", "too"}
+NEGATIONS = {"no", "not", "never", "hardly", "scarcely", "barely", "without"}
 
 
 def normalize_text(text: str) -> str:
@@ -27,32 +61,8 @@ def normalize_text(text: str) -> str:
 
 
 def split_clauses(text: str) -> List[str]:
-    pattern = r"\bbut\b|\bhowever\b|\bthough\b|\balthough\b|\byet\b"
-    parts = re.split(pattern, text, flags=re.IGNORECASE)
+    parts = re.split(CLAUSE_SPLIT_PATTERN, text, flags=re.IGNORECASE)
     return [p.strip() for p in parts if p.strip()]
-
-
-def map_binary_to_score(label: str, score: float) -> float:
-    confidence = min(max(float(score), 0.0), 1.0)
-    magnitude = max((confidence - 0.5) * 2.0, 0.0)
-    if label.upper() == "POSITIVE":
-        return round(magnitude, 4)
-    return round(-magnitude, 4)
-
-
-def classify_text(text: str) -> Dict:
-    clf = get_sentiment_pipeline()
-    result = clf(text)[0]
-
-    raw_label = str(result["label"]).upper()
-    confidence = float(result["score"])
-    signed_score = map_binary_to_score(raw_label, confidence)
-
-    return {
-        "raw_label": raw_label,
-        "confidence": round(confidence, 4),
-        "signed_score": signed_score,
-    }
 
 
 def map_score_to_final_label(score: float) -> str:
@@ -61,6 +71,54 @@ def map_score_to_final_label(score: float) -> str:
     if score <= -NEUTRAL_SCORE_BAND:
         return "negative"
     return "neutral"
+
+
+def _tokenize(text: str) -> list[str]:
+    return [token for token in re.split(r"[^a-z0-9']+", text.lower()) if token]
+
+
+def classify_text(text: str) -> Dict:
+    tokens = _tokenize(text)
+    if not tokens:
+        return {
+            "raw_label": "NEUTRAL",
+            "confidence": 0.0,
+            "signed_score": 0.0,
+        }
+
+    weighted_hits = 0.0
+    signed_hits = 0.0
+
+    for idx, token in enumerate(tokens):
+        prev = tokens[idx - 1] if idx > 0 else ""
+        prev_two = tokens[idx - 2] if idx > 1 else ""
+        negated = prev in NEGATIONS or prev_two in NEGATIONS
+        weight = 1.5 if prev in INTENSIFIERS else 1.0
+
+        if token in POSITIVE_TERMS:
+            direction = -1.0 if negated else 1.0
+            signed_hits += direction * weight
+            weighted_hits += weight
+        elif token in NEGATIVE_TERMS:
+            direction = 1.0 if negated else -1.0
+            signed_hits += direction * weight
+            weighted_hits += weight
+
+    if weighted_hits == 0.0:
+        return {
+            "raw_label": "NEUTRAL",
+            "confidence": 0.0,
+            "signed_score": 0.0,
+        }
+
+    normalized_score = max(min(signed_hits / weighted_hits, 1.0), -1.0)
+    confidence = round(min(abs(normalized_score), 1.0), 4)
+    raw_label = "POSITIVE" if normalized_score > 0 else "NEGATIVE"
+    return {
+        "raw_label": raw_label,
+        "confidence": confidence,
+        "signed_score": round(normalized_score, 4),
+    }
 
 
 def analyze_sentiment(text: str) -> Dict:
@@ -84,13 +142,10 @@ def analyze_sentiment(text: str) -> Dict:
     if len(clauses) >= 2:
         for clause in clauses:
             pred = classify_text(clause)
-
-            if pred["confidence"] < NEUTRAL_THRESHOLD:
+            clause_score = pred["signed_score"]
+            clause_label = map_score_to_final_label(clause_score)
+            if clause_label == "neutral":
                 clause_score = 0.0
-                clause_label = "neutral"
-            else:
-                clause_score = pred["signed_score"]
-                clause_label = map_score_to_final_label(clause_score)
 
             clause_details.append(
                 {
@@ -116,11 +171,7 @@ def analyze_sentiment(text: str) -> Dict:
             "clause_details": clause_details,
         }
 
-    if full_pred["confidence"] < NEUTRAL_THRESHOLD:
-        final_score = 0.0
-    else:
-        final_score = full_pred["signed_score"]
-
+    final_score = full_pred["signed_score"]
     final_label = map_score_to_final_label(final_score)
     if final_label == "neutral":
         final_score = 0.0

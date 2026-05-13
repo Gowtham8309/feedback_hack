@@ -9,6 +9,4 @@ pydantic
 python-dotenv
 requests
 streamlit
-torch
-transformers
 uvicorn
