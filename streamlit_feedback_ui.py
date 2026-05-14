@@ -163,6 +163,23 @@ def show_warning_once(key: str, message: str) -> None:
     st.warning(message)
 
 
+def record_upload_parser_issue(message: str) -> None:
+    issue_text = value_or_empty(message).strip()
+    if not issue_text:
+        return
+    issues = st.session_state.setdefault("_upload_parser_issues", [])
+    if issue_text not in issues:
+        issues.append(issue_text)
+
+
+def clear_upload_parser_issues() -> None:
+    st.session_state["_upload_parser_issues"] = []
+
+
+def get_upload_parser_issues() -> list[str]:
+    return list(st.session_state.get("_upload_parser_issues") or [])
+
+
 def value_or_empty(value: Any) -> str:
     return "" if value is None else str(value)
 
@@ -924,7 +941,9 @@ def extract_content_from_document(uploaded_file, filename: str) -> tuple[str, li
         try:
             from docx import Document
         except Exception:
-            st.warning("Install `python-docx` to parse Word uploads.")
+            message = "Word uploads require `python-docx`. Install it and redeploy, then upload the DOCX again."
+            record_upload_parser_issue(message)
+            show_warning_once("docx_parser_missing", message)
             return "", []
         doc = Document(uploaded_file)
         text_parts = [p.text for p in doc.paragraphs if p.text]
@@ -3954,6 +3973,7 @@ with tab1:
 
                     save_trade_bank = st.button("Save Trade Question Bank", use_container_width=True, key="save_trade_bank_btn")
                     if save_trade_bank:
+                        clear_upload_parser_issues()
                         if not setup_trade.strip():
                             st.error("Enter a trade name before saving.")
                         elif not combined_files and not theory_files and not practical_files:
@@ -3992,6 +4012,9 @@ with tab1:
                                 )
                             upload_df = upload_df[upload_df["source"].isin(["theory", "practical"])]
                             if upload_df.empty:
+                                parser_issues = get_upload_parser_issues()
+                                for issue in parser_issues:
+                                    st.error(issue)
                                 st.error("No valid questions could be parsed. For combined structured files, include a source column with theory or practical.")
                             else:
                                 source_counts = upload_df["source"].value_counts().to_dict()
